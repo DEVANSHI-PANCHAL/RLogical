@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "employee leave management system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "employee",
+    "leave",
+    "management",
+    "system"
+  ],
+  "author": "Devanshi Panchal",
+  "license": "ISC"
+}
