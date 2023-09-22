@@ -1,6 +1,11 @@
 import { apiSlice } from './apiSlice';
 
-const LEAVE_URL = '/api/leave';
+const LEAVE_URL = 'http://localhost:5000/api/leave';
+
+
+const getToken = () => {
+  return localStorage.getItem('token');
+};
 
 export const leaveApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,6 +13,9 @@ export const leaveApiSlice = apiSlice.injectEndpoints({
       query: (data) => ({
         url: `${LEAVE_URL}/apply`,
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`, 
+        },
         body: data,
       }),
     }),
@@ -15,18 +23,27 @@ export const leaveApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: `${LEAVE_URL}/get-all-leaves`,
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`, 
+        }
       }),
     }),
     getLeaveRequestById: builder.query({
       query: (id) => ({
         url: `${LEAVE_URL}/get-leave/${id}`,
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`, 
+        }
       }),
     }),
     updateLeaveRequest: builder.mutation({
       query: ({ id, data }) => ({
         url: `${LEAVE_URL}/update-leave/${id}`,
         method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`, 
+        },
         body: data,
       }),
     }),
@@ -34,6 +51,9 @@ export const leaveApiSlice = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `${LEAVE_URL}/${id}`,
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`, 
+        }
       }),
     }),
   }),

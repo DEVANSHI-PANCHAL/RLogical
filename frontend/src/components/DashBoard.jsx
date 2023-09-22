@@ -1,34 +1,55 @@
-import { useEffect, useState } from 'react';
-import { Container, Card, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import {
-  useGetAllLeaveRequestsQuery,
-  useGetLeaveRequestByIdQuery,
-} from '../slices/leavesSlice';
 
-const Dashboard = () => {
-  const { data: leaveData, isLoading, isError } = useGetAllLeaveRequestsQuery();
-  const [totalLeaves, setTotalLeaves] = useState(0);
+import React, { useEffect, useState } from 'react';
+import { Container, Card, Button } from 'react-bootstrap';
+import { Link, useNavigate  } from 'react-router-dom';
+import Axios from 'axios';
+
+const Dashboard = ({ authToken }) => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (authToken) {
+    
+      localStorage.setItem('token', authToken);
+    }
+  }, [authToken]);
+
+  const initialTotalLeaves = 20;
+  const [totalLeaves, setTotalLeaves] = useState(initialTotalLeaves);
   const [appliedLeaves, setAppliedLeaves] = useState(0);
-  const [availableLeaves, setAvailableLeaves] = useState(0);
+  const [availableLeaves, setAvailableLeaves] = useState(initialTotalLeaves);
+
+  const fetchLeaveRequests = async () => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      // if (!token) {
+      //   navigate('/login'); 
+      //   return;
+      // }
+  
+      
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+  
+      const response = await Axios.get('/api/leave/get-all-leaves', { headers });
+  
+      const leaveData = response.data;
+      if (leaveData) {
+        const total = leaveData.length;
+        const applied = leaveData.filter((leave) => leave.status === 'approved').length;
+        setTotalLeaves(total); 
+        setAppliedLeaves(applied);
+        setAvailableLeaves(initialTotalLeaves - applied); 
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    if (!isLoading && !isError && leaveData) {
-      const total = leaveData.length;
-      const applied = leaveData.filter((leave) => leave.status === 'approved').length;
-      setTotalLeaves(total);
-      setAppliedLeaves(applied);
-      setAvailableLeaves(total - applied);
-    }
-  }, [leaveData, isLoading, isError]);
-
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (isError) {
-    return <p>Error loading data.</p>;
-  }
+    fetchLeaveRequests();
+  }, []);
 
   return (
     <div className="py-5">
@@ -52,3 +73,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

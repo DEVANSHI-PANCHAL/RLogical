@@ -1,25 +1,43 @@
+
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button, Form as BootstrapForm } from 'react-bootstrap';
-import { useCreateLeaveRequestMutation } from '../slices/leavesSlice'; 
+import Axios from 'axios'; 
+import { useNavigate } from 'react-router-dom'; 
 
 function ApplyLeave() {
+  const navigate = useNavigate(); 
 
-  const createLeaveRequest = useCreateLeaveRequestMutation();
-
-  const handleSubmit = (values) => {
- 
-    createLeaveRequest.mutate(values, {
-      onSuccess: (response) => {
-        console.log('Leave application submitted successfully');
-    
-      },
-      onError: (error) => {
-        console.error('Error submitting leave application: ', error);
+  const handleSubmit = async (values) => {
+    try {
    
-      },
-    });
+      const authToken = localStorage.getItem('userInfo');
+      if (!authToken) {
+        console.error('User is not authenticated');
+      
+        navigate('/login');
+        return;
+      }
+
+     
+      const headers = {
+        Authorization: `Bearer ${authToken}`,
+      };
+
+      const response = await Axios.post('/api/leave/apply', values, { headers });
+
+      if (response.status === 201) {
+        console.log('Leave application submitted successfully');
+        navigate('/success'); 
+      } else {
+        console.error('Error submitting leave application');
+      
+      }
+    } catch (error) {
+      console.error('Error submitting leave application: ', error);
+ 
+    }
   };
 
   const validationSchema = Yup.object({
@@ -86,3 +104,4 @@ function ApplyLeave() {
 }
 
 export default ApplyLeave;
+
